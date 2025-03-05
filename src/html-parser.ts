@@ -1,6 +1,6 @@
 export type ParserOptions = {
   /**
-   * include body
+   * include body element
    */
   includeBody?: boolean
   /**
