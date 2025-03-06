@@ -1,25 +1,27 @@
 export type ParserOptions = {
   /**
-   * include body element
+   * включать элемент body
    */
   includeBody?: boolean
   /**
-   * include plain text (out of tags)
+   * включать сплошной текст (вне тегов)
    */
   includeSolidText?: boolean
   /**
-   * recursive parse
+   * парсить рекурсивно
    */
   recursive?: boolean
   /**
-   * filter html tags by element name
+   * фильтровать только нужные html теги
    */
   element?: keyof React.JSX.IntrinsicElements
 }
 
 export class HTMLParser {
   /**
-   * function to create DOM from html string
+   * Преобразует HTML строку в DOM объект.
+   * @param html HTML строка
+   * @returns DOM объект
    */
   static parseFromString(html: string): Document {
     const parser = new DOMParser()
@@ -27,65 +29,72 @@ export class HTMLParser {
   }
 
   /**
-   * function to traverse html
+   * Рекурсивно обходит DOM дерево и собирает данные в зависимости от опций.
+   * @param node Текущий узел DOM дерева
+   * @param elements Массив для сбора элементов
+   * @param as Тип возвращаемых данных ('string' или 'node')
+   * @param options Опции парсинга
    */
   private static traverse(node: Node, as: 'string' | 'node', elements: (string | Node)[], options?: ParserOptions) {
     const { includeSolidText, recursive, element } = options || {}
 
-    // if node is element node (e.g. HTML | DIV | P | UL or another)
-    if (node.nodeType === Node.ELEMENT_NODE) {
-      // collect as Node
-      if (as === 'node') {
-        // if do need to filter by element
-        if (!element) {
-          elements.push(node)
-          return
+    switch (node.nodeType) {
+      // если узел - элемент
+      case Node.ELEMENT_NODE:
+        const elementNode = node as Element
+        const elementName = elementNode.tagName.toLowerCase()
+
+        // если нашли элемент script, в целях безопасности пропускаем его
+        if (elementName === 'script') {
+          console.warn('Found script node. For better security this node will be skipped.')
+          break
         }
 
-        // collect only filtered node
-        if ((node as Element).tagName.toLowerCase() === element) {
-          elements.push(node)
+        // если требуется только определенные элементы и текущий не подходит, пропускаем
+        if (element && elementName !== element) {
+          break
         }
-      } else {
-        // collect as string
-        const content = (node as Element).outerHTML.trim()
-        // if do need to filter by element
-        if (!element) {
-          elements.push(content)
-          return
-        }
-        // collect only filtered element
-        if (content.startsWith(`<${element}`)) {
-          elements.push(content)
-        }
-      }
-      // if recursive provided traverse all nodes inside
-      if (recursive) {
-        for (const child of node.childNodes) {
-          this.traverse(child, as, elements, options)
-        }
-      }
-    }
-    // collect text nodes
-    if (includeSolidText) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        // collect as Node
+
+        // добавляем элемент в зависимости от требуемого типа
         if (as === 'node') {
           elements.push(node)
         } else {
-          // collect as plain text
+          const content = elementNode.outerHTML.trim()
+          elements.push(content)
+        }
+
+        // если требуется рекурсивно обрабатывать дочерние ноды
+        if (recursive) {
+          for (const child of node.childNodes) {
+            this.traverse(child, as, elements, options)
+          }
+        }
+        break
+      // если узел - текстовый и требуется его добавить, добавляем
+      case Node.TEXT_NODE:
+        if (!includeSolidText) {
+          break
+        }
+
+        if (as === 'node') {
+          elements.push(node)
+        } else {
           const content = node.textContent
 
           if (content) {
             elements.push(content)
           }
         }
-      }
+        break
     }
   }
 
   /**
-   * function to parse html string
+   * Парсит HTML строку и возвращает массив тегов или нод в зависимости от опций.
+   * @param html HTML строка
+   * @param as Тип возвращаемых данных ('string' или 'node')
+   * @param options Опции парсинга
+   * @returns Массив тегов или нод
    */
   static parse(
     html: string,
@@ -98,31 +107,24 @@ export class HTMLParser {
     const nodes: Node[] = []
     const doc = this.parseFromString(html)
 
-    switch (as) {
-      case 'string':
-        if (includeBody) {
-          this.traverse(doc.body, 'string', stringNodes, options)
-        } else {
-          for (const child of doc.body.childNodes) {
-            this.traverse(child, 'string', stringNodes, options)
-          }
-        }
-        break
-      case 'node':
-        if (includeBody) {
-          this.traverse(doc.body, 'node', nodes, options)
-        } else {
-          for (const child of doc.body.childNodes) {
-            this.traverse(child, 'node', nodes, options)
-          }
-        }
+    const elements = as === 'string' ? stringNodes : nodes
+
+    if (includeBody) {
+      this.traverse(doc.body, as, elements, options)
+    } else {
+      for (const child of doc.body.childNodes) {
+        this.traverse(child, as, elements, options)
+      }
     }
 
     return { stringNodes, nodes }
   }
 
   /**
-   * function to count html nodes
+   * Считает количество указанных тегов в HTML строке.
+   * @param html HTML строка
+   * @param options настройки парсера
+   * @returns Количество найденных тегов
    */
   static countElements(html: string, options?: ParserOptions): number {
     const nodes = this.parse(html, 'string', options).stringNodes
