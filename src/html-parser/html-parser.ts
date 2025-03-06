@@ -17,13 +17,22 @@ export type ParserOptions = {
   element?: keyof React.JSX.IntrinsicElements
 }
 
+const isBrowser = typeof window !== 'undefined'
+
 export class HTMLParser {
+  private static readonly TEXT_NODE = 3 as const
+  private static readonly ELEMENT_NODE = 1 as const
+
   /**
    * Преобразует HTML строку в DOM объект.
    * @param html HTML строка
    * @returns DOM объект
    */
-  static parseFromString(html: string): Document {
+  static async parseFromString(html: string): Promise<Document> {
+    if (!isBrowser) {
+      throw new Error('HTMLParser should only be used in the browser.')
+    }
+
     const parser = new DOMParser()
     return parser.parseFromString(html, 'text/html')
   }
@@ -35,12 +44,12 @@ export class HTMLParser {
    * @param as Тип возвращаемых данных ('string' или 'node')
    * @param options Опции парсинга
    */
-  private static traverse(node: Node, as: 'string' | 'node', elements: (string | Node)[], options?: ParserOptions) {
+  protected static traverse(node: Node, as: 'string' | 'node', elements: (string | Node)[], options?: ParserOptions) {
     const { includeSolidText, recursive, element } = options || {}
 
     switch (node.nodeType) {
       // если узел - элемент
-      case Node.ELEMENT_NODE:
+      case this.ELEMENT_NODE:
         const elementNode = node as Element
         const elementName = elementNode.tagName.toLowerCase()
 
@@ -71,7 +80,7 @@ export class HTMLParser {
         }
         break
       // если узел - текстовый и требуется его добавить, добавляем
-      case Node.TEXT_NODE:
+      case this.TEXT_NODE:
         if (!includeSolidText) {
           break
         }
@@ -96,16 +105,20 @@ export class HTMLParser {
    * @param options Опции парсинга
    * @returns Массив тегов или нод
    */
-  static parse(
+  static async parse(
     html: string,
     as: 'string' | 'node' = 'string',
     options?: ParserOptions
-  ): { stringNodes: string[]; nodes: Node[] } {
+  ): Promise<{ stringNodes: string[]; nodes: Node[] }> {
+    if (!isBrowser) {
+      throw new Error('HTMLParser should only be used in the browser.')
+    }
+
     const { includeBody } = options || {}
 
     const stringNodes: string[] = []
     const nodes: Node[] = []
-    const doc = this.parseFromString(html)
+    const doc = await this.parseFromString(html)
 
     const elements = as === 'string' ? stringNodes : nodes
 
@@ -126,9 +139,9 @@ export class HTMLParser {
    * @param options настройки парсера
    * @returns Количество найденных тегов
    */
-  static countElements(html: string, options?: ParserOptions): number {
-    const nodes = this.parse(html, 'string', options).stringNodes
+  static async countElements(html: string, options?: ParserOptions): Promise<number> {
+    const { stringNodes } = await this.parse(html, 'string', options)
 
-    return nodes.length
+    return stringNodes.length
   }
 }
