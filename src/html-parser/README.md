@@ -8,26 +8,12 @@ The parser will skip all `script` elements to prevent security issues and XSS at
 
 You can configure parser by this type
 
-```ts
-type ParserOptions = {
-  /**
-   * include HTMLBodyElement node
-   */
-  includeBody?: boolean
-  /**
-   * include Text node
-   */
-  includeSolidText?: boolean
-  /**
-   * recursive parsing to infer child nodes
-   */
-  recursive?: boolean
-  /**
-   * filter results by tag name
-   */
-  element?: keyof React.JSX.IntrinsicElements
-}
-```
+| arg                | type                | required | description                            |
+|--------------------|---------------------|----------|----------------------------------------|
+| `includeBody`      | `boolean`           | `false`  | include HTMLBodyElement node           |
+| `includeSolidText` | `boolean`           | `false`  | include Text node                      |
+| `recursive`        | `boolean`           | `false`  | recursive parsing to infer child nodes |
+| `element`          | `IntrinsicElements` | `false`  | filter results by tag name             |
 
 ```tsx
 const html = `
