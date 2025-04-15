@@ -1,6 +1,10 @@
-export class Node<T> {
-  public prev: Node<T> | null = null;
-  public next: Node<T> | null = null;
+export interface IListNode<T> {
+  next: IListNode<T> | null;
+  value: T;
+}
+
+export class ListNode<T> implements IListNode<T> {
+  public next: ListNode<T> | null = null;
 
   constructor(public value: T) {}
 }

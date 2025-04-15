@@ -1,93 +1,245 @@
-import { Node } from "./node";
+import { ListNode, type IListNode } from "./node";
 
-export interface ILinkedList<T> {
-  insertFirst(value: T): Node<T>;
-  insertLast(value: T): Node<T>;
-  deleteNode(node: Node<T>): void;
+interface ILinkedList<T> {
+  size: number;
+
+  insertFirst(value: T): IListNode<T>;
+
+  insertLast(value: T): IListNode<T>;
+
+  remove(node: IListNode<T> | null): boolean;
+
   toArray(): T[];
-  size(): number;
-  search(comparator: (value: T) => boolean): Node<T> | null;
+
+  joinToString(separator?: string): string;
+
+  getByValue(value: T): IListNode<T> | null;
+
+  find(cb: (value: T) => boolean): IListNode<T> | null;
+
+  indexOf(index: number): IListNode<T> | null;
+
+  traverse(cb?: (node: IListNode<T> | null) => void): void;
+
+  replace(searchValue: T, replaceValue: T): IListNode<T> | null;
+
+  values(): IterableIterator<T>;
 }
 
 export class LinkedList<T> implements ILinkedList<T> {
-  private head: Node<T> | null = null;
+  protected head: IListNode<T> | null = null;
+  protected tail: IListNode<T> | null = null;
+  protected _size: number = 0;
 
-  constructor(initial?: T) {
-    if (initial) {
-      this.head = new Node<T>(initial);
+  public constructor(...initial: T[]) {
+    if (!initial || !initial.length) return;
+
+    for (const value of initial) {
+      this.insertLast(value);
     }
   }
 
-  private getLastNode<T>(node: Node<T>): Node<T> {
-    return node.next ? this.getLastNode(node.next) : node;
+  public get size(): number {
+    return this._size;
   }
 
-  public insertFirst(value: T): Node<T> {
-    const node = new Node(value);
+  public get first(): T | null {
+    return this.head?.value ?? null;
+  }
 
-    if (!this.head) {
-      this.head = node;
-    } else {
-      this.head.prev = node;
-      node.next = this.head;
-      this.head = node;
-    }
+  public get last(): T | null {
+    return this.tail?.value ?? null;
+  }
+
+  public insertFirst(value: T): IListNode<T> {
+    const node = new ListNode(value);
+
+    node.next = this.head;
+    this.head = node;
+    this._size += 1;
 
     return node;
   }
 
-  public insertLast(value: T): Node<T> {
-    const node = new Node(value);
+  public insertLast(value: T): IListNode<T> {
+    const node = new ListNode(value);
 
     if (!this.head) {
       this.head = node;
+      this.tail = node;
     } else {
-      const lastNode = this.getLastNode(this.head);
-      node.prev = lastNode;
-      lastNode.next = node;
+      this.tail!.next = node;
+      this.tail = node;
     }
+    this._size += 1;
 
     return node;
   }
 
-  public deleteNode(node: Node<T>) {
-    if (!node.prev) {
-      this.head = node.next;
-    } else {
-      const prevNode = node.prev;
-      prevNode.prev = node.next;
+  public remove(node: IListNode<T> | null): boolean {
+    if (!this.head || !node) return false;
+
+    // если удаляемый элемент - первый
+    if (this.head === node) {
+      // удаляем первый элемент
+      this.head = this.head.next;
+
+      // если удаляем единственный элемент
+      if (!this.head) {
+        // очищаем хвост
+        this.tail = null;
+      }
+
+      node.next = null;
+      this._size -= 1;
+
+      return true;
+    }
+
+    let currentNode: IListNode<T> | null = this.head;
+
+    // перебираем ноды, пока не найдем искомый элемент
+    while (currentNode?.next && currentNode.next !== node) {
+      currentNode = currentNode.next;
+    }
+
+    // если элемент не найден, выходим из функции
+    if (!currentNode.next) return false;
+
+    const nodeToRemove = currentNode.next;
+
+    // удаляем элемент
+    currentNode.next = currentNode.next.next;
+
+    nodeToRemove.next = null;
+    this._size -= 1;
+    return true;
+  }
+
+  public traverse(cb?: (node: IListNode<T> | null) => void) {
+    let node = this.head;
+
+    while (node) {
+      if (cb) cb(node);
+      node = node.next;
     }
   }
 
   public toArray(): T[] {
     const array: T[] = [];
 
-    if (!this.head) {
-      return array;
-    }
+    if (!this.head) return array;
 
-    const addToArray = (node: Node<T>): T[] => {
+    let node: IListNode<T> | null = this.head;
+
+    while (node) {
       array.push(node.value);
 
-      return node.next ? addToArray(node.next) : array;
-    };
+      node = node.next;
+    }
 
-    return addToArray(this.head);
+    return array;
   }
 
-  public size(): number {
-    return this.toArray().length;
+  public joinToString(separator: string = ","): string {
+    if (!this.head) return "";
+
+    let joinedString = String(this.head.value);
+    let node: IListNode<T> | null = this.head.next;
+
+    while (node) {
+      joinedString += separator + String(node.value);
+      node = node.next;
+    }
+
+    return joinedString;
   }
 
-  public search(comparator: (value: T) => boolean): Node<T> | null {
-    const hasNext = (node: Node<T>): Node<T> | null => {
-      if (comparator(node.value)) {
+  public getByValue(value: T): IListNode<T> | null {
+    if (!this.head) return null;
+
+    let node: IListNode<T> | null = this.head;
+
+    while (node) {
+      if (node.value === value) return node;
+
+      node = node.next;
+    }
+
+    return null;
+  }
+
+  public find(cb: (value: T) => boolean): IListNode<T> | null {
+    if (!this.head) return null;
+
+    let node: IListNode<T> | null = this.head;
+
+    while (node) {
+      if (cb(node.value)) return node;
+
+      node = node.next;
+    }
+
+    return null;
+  }
+
+  public indexOf(index: number): IListNode<T> | null {
+    if (!this.head || index < 0 || index >= this._size) return null;
+
+    if (index === 0) return this.head;
+    if (index === this._size - 1) return this.tail;
+
+    let currentIndex: number = 0;
+    let node: IListNode<T> | null = this.head;
+
+    while (node) {
+      if (currentIndex === index) {
         return node;
       }
 
-      return node.next ? hasNext(node.next) : null;
-    };
+      node = node.next;
+      currentIndex += 1;
+    }
 
-    return this.head ? hasNext(this.head) : null;
+    return null;
+  }
+
+  public replace(searchValue: T, replaceValue: T): IListNode<T> | null {
+    let node: ListNode<T> | null = this.head;
+
+    while (node) {
+      if (node.value === searchValue) {
+        node.value = replaceValue;
+        break;
+      }
+
+      node = node.next;
+    }
+
+    return node;
+  }
+
+  [Symbol.iterator](): Iterator<IListNode<T>> {
+    let current = this.head;
+    return {
+      next(): IteratorResult<IListNode<T>> {
+        if (current) {
+          const node = current;
+          current = node.next;
+          return { value: node, done: false };
+        } else {
+          return { value: undefined, done: true };
+        }
+      },
+    };
+  }
+
+  public *values(): IterableIterator<T> {
+    let node = this.head;
+
+    while (node) {
+      yield node.value;
+      node = node.next;
+    }
   }
 }

@@ -1,0 +1,19 @@
+{
+  "name": "linked-list",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.6.3",
+  "devDependencies": {
+    "prettier": "^3.5.3",
+    "vitest": "^3.1.1"
+  }
+}
