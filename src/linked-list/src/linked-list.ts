@@ -79,14 +79,10 @@ export class LinkedList<T> implements ILinkedList<T> {
   public remove(node: IListNode<T> | null): boolean {
     if (!this.head || !node) return false;
 
-    // если удаляемый элемент - первый
     if (this.head === node) {
-      // удаляем первый элемент
       this.head = this.head.next;
 
-      // если удаляем единственный элемент
       if (!this.head) {
-        // очищаем хвост
         this.tail = null;
       }
 
@@ -98,17 +94,14 @@ export class LinkedList<T> implements ILinkedList<T> {
 
     let currentNode: IListNode<T> | null = this.head;
 
-    // перебираем ноды, пока не найдем искомый элемент
     while (currentNode?.next && currentNode.next !== node) {
       currentNode = currentNode.next;
     }
 
-    // если элемент не найден, выходим из функции
     if (!currentNode.next) return false;
 
     const nodeToRemove = currentNode.next;
 
-    // удаляем элемент
     currentNode.next = currentNode.next.next;
 
     nodeToRemove.next = null;
