@@ -17,7 +17,7 @@ interface ILinkedList<T> {
 
   find(cb: (value: T) => boolean): IListNode<T> | null;
 
-  indexOf(index: number): IListNode<T> | null;
+  findByIndex(index: number): IListNode<T> | null;
 
   traverse(cb?: (node: IListNode<T> | null) => void): void;
 
@@ -151,6 +151,9 @@ export class LinkedList<T> implements ILinkedList<T> {
   public getByValue(value: T): IListNode<T> | null {
     if (!this.head) return null;
 
+    if (this.head.value === value) return this.head;
+    if (this.tail?.value === value) return this.tail;
+
     let node: IListNode<T> | null = this.head;
 
     while (node) {
@@ -176,7 +179,7 @@ export class LinkedList<T> implements ILinkedList<T> {
     return null;
   }
 
-  public indexOf(index: number): IListNode<T> | null {
+  public findByIndex(index: number): IListNode<T> | null {
     if (!this.head || index < 0 || index >= this._size) return null;
 
     if (index === 0) return this.head;

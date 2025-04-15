@@ -64,7 +64,7 @@ describe("Create linked list with initial values", () => {
     list.insertLast("A");
     list.insertLast("B");
 
-    const foundNode = list.indexOf(1);
+    const foundNode = list.findByIndex(1);
 
     expect(foundNode?.value).toStrictEqual("B");
   });
