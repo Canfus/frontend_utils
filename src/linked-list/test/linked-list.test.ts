@@ -1,4 +1,4 @@
-import { LinkedList } from "../linked-list";
+import { LinkedList } from "../src/linked-list";
 
 describe("Create linked list with initial values", () => {
   it("should create linked list with initial string values correctly", () => {

@@ -10,6 +10,6 @@
     "declarationMap": true,
     "moduleResolution": "bundler"
   },
-  "include": ["test"],
+  "include": ["src", "test"],
   "exclude": ["node_modules"]
 }
