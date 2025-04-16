@@ -9,31 +9,31 @@ type PathMatcher = (breadcrumb: Breadcrumb) => string
 
 export type UseBreadcrumbsOptions = {
   /**
-   * включить главную страницу
+   * include root page
    * @default true
    */
   rootEnabled?: boolean
   /**
-   * переопределяет отображаемый лейбл хлебной крошки
+   * overrides the displayed breadcrumb
    * @default undefined
    */
   matcher?: PathMatcher
   /**
-   * указывает начало хлебных крошек
+   * indicates the beginning of the breadcrumbs
    * @typeParam string - path name
    * @typeParam number - path index
    * @default undefined
    */
   startsWith?: number | string
   /**
-   * указывает конец хлебных крошек
+   * indicates the end of the breadcrumbs
    * @typeParam string - path name
    * @typeParam number - path index
    * @default undefined
    */
   endsWith?: number | string
   /**
-   * фильтрация хлебных крошек
+   * filter breadcrumbs
    * @param breadcrumb
    * @default undefined
    */
