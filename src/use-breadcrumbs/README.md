@@ -6,10 +6,10 @@ You can configure parser by this type
 
 | arg          | type                                  | required | description                                |
 |--------------|---------------------------------------|----------|--------------------------------------------|
-| `matcher`    | `(breadcrumb: Breadcrumb) => string`  | `false`  | overrides the displayed breadcrumb label   |
+| `matcher`    | `(breadcrumb: Breadcrumb) => string`  | `false`  | overrides the displayed breadcrumb         |
 | `startsWith` | `number \| string`                    | `false`  | indicates the beginning of the breadcrumbs |
 | `endsWith`   | `number \| string`                    | `false`  | indicates the end of the breadcrumbs       |
-| `filter`     | `(breadcrumb: Breadcrumb) => boolean` | `false`  | filtering bread crumbs                     |
+| `filter`     | `(breadcrumb: Breadcrumb) => boolean` | `false`  | filter breadcrumbs                         |
 
 ## Usage with `react`
 
