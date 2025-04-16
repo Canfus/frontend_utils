@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from 'react'
-import type { ParserOptions } from './htmlParser'
-import { ReactHTMLParser } from './reactHtmlParser'
+import type { ParserOptions } from './base-html-parser'
+import { ReactHTMLParser } from './react-html-parser'
 
 type HTMLRendererProps = {
   html: string
