@@ -1,4 +1,5 @@
 import { BaseHTMLParser, type ParserOptions } from './baseHtmlParser'
+
 class NodeHTMLParserError extends Error {
   constructor(
     message: string,
@@ -8,6 +9,7 @@ class NodeHTMLParserError extends Error {
     this.name = 'NodeHTMLParserError'
   }
 }
+
 export class NodeHTMLParser extends BaseHTMLParser {
   constructor(options?: ParserOptions) {
     super(options)
