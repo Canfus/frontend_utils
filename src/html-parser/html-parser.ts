@@ -1,4 +1,4 @@
-import { BaseHTMLParser, type ParserOptions } from './baseHtmlParser'
+import { BaseHTMLParser, type ParserOptions } from './base-html-parser'
 
 const isBrowser = typeof window !== 'undefined'
 
