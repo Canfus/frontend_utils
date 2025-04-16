@@ -1,6 +1,8 @@
 import { createElement } from 'react'
-import { HTMLParser, type ParserOptions } from './htmlParser'
-import { NodeHTMLParser } from './nodeHtmlParser'
+
+import { HTMLParser } from './html-parser'
+import { NodeHTMLParser } from './node-html-parser'
+import type { ParserOptions } from './base-html-parser'
 
 const isBrowser = typeof window !== 'undefined'
 
